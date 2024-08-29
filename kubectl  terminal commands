@@ -64,3 +64,181 @@ kube-system   kube-controller-manager-minikube   1/1     Running   0            
 kube-system   kube-proxy-qtnwr                   1/1     Running   0             33m
 kube-system   kube-scheduler-minikube            1/1     Running   0             33m
 kube-system   storage-provisioner                1/1     Running   1 (32m ago)   33m
+
+
+
+
+
+Welcome to Ubuntu 22.04.3 LTS (GNU/Linux 5.15.153.1-microsoft-standard-WSL2 x86_64)
+
+ * Documentation:  https://help.ubuntu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ubuntu.com/advantage
+
+ * Strictly confined Kubernetes makes edge and IoT secure. Learn how MicroK8s
+   just raised the bar for easy, resilient and secure K8s cluster deployment.
+
+   https://ubuntu.com/engage/secure-kubernetes-at-the-edge
+
+This message is shown once a day. To disable it please create the
+/home/linda/.hushlogin file.
+linda@Linda:~$ minikube start
+😄  minikube v1.33.1 on Ubuntu 22.04 (amd64)
+✨  Using the docker driver based on existing profile
+👍  Starting "minikube" primary control-plane node in "minikube" cluster
+🚜  Pulling base image v0.0.44 ...
+🏃  Updating the running docker "minikube" container ...
+🐳  Preparing Kubernetes v1.30.0 on Docker 26.1.1 ...
+🔎  Verifying Kubernetes components...
+    ▪ Using image gcr.io/k8s-minikube/storage-provisioner:v5
+🌟  Enabled addons: default-storageclass, storage-provisioner
+🏄  Done! kubectl is now configured to use "minikube" cluster and "default" namespace by default
+linda@Linda:~$ alias k='kubectl'
+linda@Linda:~$ k get pods
+No resources found in default namespace.
+linda@Linda:~$ k get ns
+NAME              STATUS   AGE
+default           Active   47h
+kube-node-lease   Active   47h
+kube-public       Active   47h
+kube-system       Active   47h
+linda             Active   46h
+linda@Linda:~$ k get po -n kubesystem
+No resources found in kubesystem namespace.
+linda@Linda:~$ k get po -n kube-system
+NAME                               READY   STATUS    RESTARTS        AGE
+coredns-7db6d8ff4d-8qwgv           1/1     Running   1 (4m24s ago)   47h
+etcd-minikube                      1/1     Running   1 (4m29s ago)   47h
+kube-apiserver-minikube            1/1     Running   1 (4m19s ago)   47h
+kube-controller-manager-minikube   1/1     Running   1 (4m29s ago)   47h
+kube-proxy-qtnwr                   1/1     Running   1 (4m29s ago)   47h
+kube-scheduler-minikube            1/1     Running   1 (4m29s ago)   47h
+storage-provisioner                1/1     Running   3 (4m12s ago)   47h
+linda@Linda:~$
+linda@Linda:~$ vi lindadeployment.yaml
+linda@Linda:~$ k apply -f lindadeployment.yaml
+deployment.apps/nginx-deployment-test created
+linda@Linda:~$ k get deploy
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment-test   3/3     3            3           53s
+linda@Linda:~$ k describe
+error: You must specify the type of resource to describe. Use "kubectl api-resources" for a complete list of supported resources.
+linda@Linda:~$ k describe deploy
+Name:                   nginx-deployment-test
+Namespace:              default
+CreationTimestamp:      Thu, 29 Aug 2024 21:09:39 +0200
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=nginx
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   linda-nginx:
+    Image:         nginx:1.14.2
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   nginx-deployment-test-6ff489d878 (3/3 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  2m19s  deployment-controller  Scaled up replica set nginx-deployment-test-6ff489d878 to 3
+linda@Linda:~$ cp lindadeployment.yaml lindadeployment2.yaml
+linda@Linda:~$ vi lindadeployment2.yaml
+linda@Linda:~$ k apply -f lindadeployment2.yaml
+Error from server (BadRequest): error when creating "lindadeployment2.yaml": Deployment in version "v1" cannot be handled as a Deployment: strict decoding error: unknown field "namespace"
+linda@Linda:~$ vi lindadeployment2.yaml
+linda@Linda:~$ vi lindadeployment2.yaml
+linda@Linda:~$ k get ns
+NAME              STATUS   AGE
+default           Active   47h
+kube-node-lease   Active   47h
+kube-public       Active   47h
+kube-system       Active   47h
+linda             Active   47h
+linda@Linda:~$ k get ns
+NAME              STATUS   AGE
+default           Active   47h
+kube-node-lease   Active   47h
+kube-public       Active   47h
+kube-system       Active   47h
+linda             Active   47h
+linda@Linda:~$ vi lindadeployment2.yaml
+linda@Linda:~$ k apply -f lindadeployment2.yaml
+deployment.apps/nginx-deployment-test2 created
+linda@Linda:~$ vi lindadeployment2.yaml
+linda@Linda:~$ k get deploy -n linda
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+nginx-deployment-test2   3/3     3            3           4m39s
+linda@Linda:~$ k describe deploy -n linda
+Name:                   nginx-deployment-test2
+Namespace:              linda
+CreationTimestamp:      Thu, 29 Aug 2024 21:21:29 +0200
+Labels:                 app=nginx
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=nginx
+Replicas:               3 desired | 3 updated | 3 total | 3 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=nginx
+  Containers:
+   linda-nginx2:
+    Image:         nginx:1.14.2
+    Port:          80/TCP
+    Host Port:     0/TCP
+    Environment:   <none>
+    Mounts:        <none>
+  Volumes:         <none>
+  Node-Selectors:  <none>
+  Tolerations:     <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   nginx-deployment-test2-77d8d7b56 (3/3 replicas created)
+Events:
+  Type    Reason             Age    From                   Message
+  ----    ------             ----   ----                   -------
+  Normal  ScalingReplicaSet  6m17s  deployment-controller  Scaled up replica set nginx-deployment-test2-77d8d7b56 to 3
+linda@Linda:~$ cat lindadeployment2.yaml
+apiVersion: apps/v1
+kind: Deployment
+  #namespace: linda
+metadata:
+  name: nginx-deployment-test2
+  namespace: linda
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: linda-nginx2
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
